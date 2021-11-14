@@ -1,0 +1,351 @@
+#!/bin/bash
+
+## Set difficulty #####################################
+# Set to number of 0's that starts hash.
+# 1 = Easy, 2 = Not bad, > 3 = Difficult
+        DIFF=1
+
+## Set Nonce ##########################################
+# Number at which to start guessing the nonce
+# No reason to change
+        NONCE=0
+
+## Other Variables ####################################
+# Leave alone
+        ZEROS=ff
+        DIFFPLUS=1
+        DIFFZEROS=0
+
+## Functions ##########################################
+
+getGoogleHeadline () {
+        HEADLINE=$(curl -s -k "https://news.google.com/news/headlines?hl=en&ned=us&gl=US" | grep -m 1 heading | sed 's/.*aria-level\=\"2\" >//g' | sed 's/<\/a>.*//g')
+}
+
+findBlocks() {
+        CURRENTBLOCK=`ls -1 *.blk | tail -1`
+
+        # If there is no current block in the current directory then exit
+        [[ -z $CURRENTBLOCK ]] && echo "No blockchain in current folder!  Try using ./bashcoin minegenesis to start a new blockchain." && exit 1
+
+        # Get the current block's number
+        CURRENTBLOCKNUM=`echo $CURRENTBLOCK | sed 's/.blk//g'`
+
+        # If the genesis block is the only block then break out of the findBlocks function before we look for previous blocks
+        if [[ $CURRENTBLOCK == "1.blk" ]]
+                        then
+                                                        return
+        fi
+
+        PREVIOUSBLOCKNUM=`echo $CURRENTBLOCKNUM-1 | bc`
+        PREVIOUSBLOCK=`echo $PREVIOUSBLOCKNUM.blk.solved`
+        NEXTBLOCKNUM=`echo $CURRENTBLOCKNUM+1 | bc`
+        NEXTBLOCK=`echo $NEXTBLOCKNUM.blk`
+
+        PREVHASH=`md5sum $PREVIOUSBLOCK | cut -d" " -f1`
+}
+
+checkSyntax () {
+        # Checks to see if difficulty was setup properly
+        if [ $DIFF -lt 1 ] || [ $DIFF -gt 32 ]
+                        then
+                                        echo "Please set difficulty to 1 through 32"
+                                        exit 1
+        fi
+        echo "Previous Block:                                               "$PREVIOUSBLOCK
+        echo "Current Block:                                "$CURRENTBLOCK
+}
+
+setup () {
+        # Build the difficulty zeros based on DIFF variable
+        while [ $DIFFPLUS != $DIFF ]
+                        do
+                                        DIFFZEROS=$(echo $DIFFZEROS"0")
+                                        let "DIFFPLUS += 1"
+                        done
+        printf "Difficulty set to:                            $DIFFZEROS\n"
+	printf "No use, but $DIFFPLUS and $DIFFZEROS\n"
+}
+
+buildWIPBlock () {
+        getGoogleHeadline
+        DATE=$(date)
+        printf "`cat $CURRENTBLOCK`\n\n" > $CURRENTBLOCK.wip
+        printf "## Google News Headline: ##################################################################\n" >> $CURRENTBLOCK.wip
+        printf "$HEADLINE\n\n" >> $CURRENTBLOCK.wip
+        printf "## Mine Date and Time: ####################################################################\n" >> $CURRENTBLOCK.wip
+        printf "$DATE\n\n" >> $CURRENTBLOCK.wip
+}
+
+mine () {
+        # start mining, check to see if the hash starts with the winning number of zeros and if it does complete the loop
+        while [ $ZEROS != $DIFFZEROS ]
+        do
+                        # increase the nonce by one
+                        let "NONCE += 1"
+                        # do the hashing
+                        HASH=$(printf "`cat $CURRENTBLOCK.wip`\n\n## Nonce: #################################################################################\n$NONCE\n" | md5sum)
+                        HASH=$(echo $HASH | cut -d" " -f1)
+                        # print the hash to the screen because it looks cool
+                        echo $HASH
+                        # cut the leading zeros off the hash
+                        ZEROS=$(echo $HASH | cut -c1-$DIFF)
+        done
+
+        echo "Success!"
+        echo "Nonce:            " $NONCE
+        echo "Hash:              " $HASH
+
+        printf "`cat $CURRENTBLOCK.wip`\n\n## Nonce: #################################################################################\n$NONCE\n" > $CURRENTBLOCK.solved
+        #printf "$HASH\n" > $CURRENTBLOCK.hash
+        rm -f $CURRENTBLOCK.wip
+        rm -f $CURRENTBLOCK
+
+        # Setup the next block.  Add previous hash first
+        printf "## Previous Block Hash: ###################################################################\n" >> $NEXTBLOCK
+        printf "$HASH\n\n" >> $NEXTBLOCK
+}
+
+mineGenesis () {
+        # first check to see if there is a blockchain already, if so exit so we don't overwrite
+        [[ -f 1.blk.solved ]] && echo "A mined Genesis block already exists in this folder!" && exit 1
+
+        # start mining, check to see if the hash starts with the winning number of zeros and if it does complete the loop
+  while [ $ZEROS != $DIFFZEROS ]
+  do
+                                                                        # increase the nonce by one
+          let "NONCE += 1"
+                                                                        # do the hashing
+          HASH=$(printf -- "`cat $1`\n\n## Nonce: #################################################################################\n$NONCE\n" | md5sum)
+                                                                        HASH=$(echo $HASH | cut -d" " -f1)
+                                                                        # print the hash to the screen because it looks cool
+          echo $HASH
+                                                                        # cut the leading zeros off the hash
+          ZEROS=$(echo $HASH | cut -c1-$DIFF)
+  done
+
+        echo "Success!"
+        echo "Nonce:    " $NONCE
+        echo "Hash:     " $HASH
+
+        printf -- "`cat $1`\n\n## Nonce: #################################################################################\n$NONCE\n" > 1.blk.solved
+        #printf "$HASH\n" > 1.blk.hash
+
+  # Setup the next block.  Add previous hash first
+        printf "## Previous Block Hash: ###################################################################\n" >> 2.blk
+        printf "$HASH\n\n" >> 2.blk
+}
+
+
+decrtypFileLineByLine () {
+        encryptedFile=$1
+        walletAddress=$2
+        privateKeyAddress=$3
+        tmpFolder="/tmp/bashCo/$RANDOM"
+        mkdir -p $tmpFolder
+        foundInBlock=$(cat $encryptedFile | grep $walletAddress)
+        if [ $? -eq 0 ]; then
+                echo "this is inside loop"
+                cat $encryptedFile | grep $walletAddress | while read line; do
+                        transactionID=$(echo ${line}| awk -v FS=':' '{print $1}')
+                        encLine=$(echo ${line}| awk -v FS=':' '{print $3}')
+                        decLine=$(echo $encLine | base64 -d | openssl rsautl -decrypt -inkey $privateKeyAddress)
+                        decPublicKey=$(echo ${decLine}| awk -v FS=':' '{print $1}')
+                        transactionLine=$(echo "$transactionID:$walletAddress:$decLine")
+                        echo $transactionLine
+                done > $tmpFolder/decryptLines
+                cat $tmpFolder/decryptLines
+                rm -rf $tmpFolder/decryptLines
+        else
+                echo  "111"
+        fi
+}
+
+checkAccountBal () {
+        ACCTNUM=$1
+        PrivateKeyFile="/root/bashCo/backup/alice_private.pem"
+
+        # Get the value of the last change transaction (the last time a user sent money back to themselves) if it exists
+        for i in `ls *.blk* -1r`; do
+                transactionLine=$(decrtypFileLineByLine $i $ACCTNUM $PrivateKeyFile| tail -1)
+                if [ "$transactionLine" != "111" ]; then   
+                        LASTCHANGEBLK=$i
+                        echo "this is LASTCHANGEBLK: $LASTCHANGEBLK"
+                fi
+                        #LASTCHANGEBLK=`grep -l -m 1 .*:$ACCTNUM:$ACCTNUM:.* $i`
+                        [[ $LASTCHANGEBLK ]] && break
+        done
+
+        # If there was a change transaction get the value, if not print "Account has never spent money."
+        #[[ $LASTCHANGEBLK ]] && LASTCHANGE=`grep $ACCTNUM:$ACCTNUM $LASTCHANGEBLK | tail -1` || echo "Account has never spent BashCoin."
+        [[ $LASTCHANGEBLK ]] &&
+        if [ $(echo ${transactionLine}| awk -v FS=':' '{print $2}') == $(echo ${transactionLine}| awk -v FS=':' '{print $3}') ]; then
+                LASTCHANGE=$transactionLine
+        else
+                echo "Account has never spent BashCoin."
+        fi
+        # If account has never spent money then set LASTCHANGE to zero, if it has, separate out the tx number and value of that transaction
+        [[ $LASTCHANGE ]] && LASTCHANGETX=`echo $LASTCHANGE | cut -d":" -f 1 | sed 's/tx//'` && LASTCHANGE=`echo $LASTCHANGE | cut -d":" -f 4` || LASTCHANGE=0
+
+        # Print the value of the last change transaction (the value of the users account before any other received transactions)
+        #echo Last Change = $LASTCHANGE
+        #echo Last Change Transaction Number = $LASTCHANGETX
+
+        # Get all of the receiving transactions after last change in the last change block and add them together
+        if [[ $LASTCHANGEBLK ]]
+                        then
+                                        RECAFTERCHANGE=`sed "1,/tx$LASTCHANGETX/d" $LASTCHANGEBLK | grep .*:.*:$ACCTNUM:.* | cut -d":" -f4 | paste -sd+ | bc`
+                                        [[ $RECAFTERCHANGE ]] || RECAFTERCHANGE=0
+                                        #echo "Received after last change tx (same blk) = $RECAFTERCHANGE"
+                        else
+                                        LASTCHANGEBLK=1.blk.solved
+                                        #RECAFTERCHANGE=`grep .*:.*:$ACCTNUM:.* $LASTCHANGEBLK | cut -d":" -f4 | paste -sd+ | bc`
+                                        RECAFTERCHANGE=`decrtypFileLineByLine $i $ACCTNUM $PrivateKeyFile| grep .*:$ACCTNUM:.*:.* | cut -d":" -f4 | paste -sd+ | bc`
+            [[ $RECAFTERCHANGE ]] || RECAFTERCHANGE=0
+            #echo "Received after last change tx (same blk)(genesis) = $RECAFTERCHANGE"
+        fi
+        #echo $LASTCHANGEBLK
+        # Get all the receiving transactions after last change block and add them together
+        SUM=0
+        if [[ $LASTCHANGEBLK == 1.blk.solved ]];then
+                for i in `ls -1 *.blk*`; do
+                        transactionLine=$(decrtypFileLineByLine $i $ACCTNUM $PrivateKeyFile| grep .*:$ACCTNUM:.*:.* ) && SUM=$SUM+`echo $transactionLine | grep .*:$ACCTNUM:.*[^$ACCTNUM]*:.* | cut -d":" -f4 | paste -sd+ | bc` || SUM=$SUM+0
+                done
+        else
+                for i in `ls -1 *.blk* | sed "1,/$LASTCHANGEBLK/d"`; do
+                        transactionLine=$(decrtypFileLineByLine $i $ACCTNUM $PrivateKeyFile| grep .*:$ACCTNUM:.*:.* ) && SUM=$SUM+`echo $transactionLine | grep .*:$ACCTNUM:.*[^$ACCTNUM]*:.* | cut -d":" -f4 | paste -sd+ | bc` || SUM=$SUM+0
+                done
+        fi
+        SUM=`echo $SUM | bc`
+        [[ $SUM ]] || SUM=0
+        #echo "Received after last change tx (remaining blk's)= $SUM"
+
+        # Add last change value and received money since then
+        TOTAL=`echo $LASTCHANGE+$RECAFTERCHANGE+$SUM`
+        TOTAL=`echo $LASTCHANGE+$RECAFTERCHANGE+$SUM | bc`
+        echo "Current Balance for $ACCTNUM:     $TOTAL"
+}
+
+send() {
+        tmpFolder="/tmp/bashCo/$RANDOM" 
+        SENDER=$3
+        RECEIVER=$2
+        AMOUNT=$1
+
+        echo $RECEIVER | base64 -d> $tmpFolder/RECEIVER_PUBLIC.pem
+        echo $SENDER | base64 -d > $tmpFolder/SENDER_PUBLIC.pem
+
+        ## Fariz patch 
+        [ $AMOUNT -lt 0 ] && echo "Amount cannot be negative" && exit 
+
+        # Check if current block is solved just to make sure the blockchain is still live
+        CURRENTBLOCKCHECK=`ls -1 *.blk | tail -1 | grep solved`
+        if [[ $CURRENTBLOCKCHECK ]]
+                        then
+                                        echo "The current block is already solved!"
+                                        echo "ERROR: need unsolved block"
+                                        exit 1
+        fi
+
+        # Check to see if current block has transactions listed
+        if [[ `cat $CURRENTBLOCK | grep "tx[0-9]*:"` ]]
+                        then
+                                        #echo "block has transactions"
+                                        # Get next tx number
+                                        LASTTRAN=`cat $CURRENTBLOCK | tail -1 | cut -d":" -f 1 | sed 's/tx//g' | sed 's/^0*//g'`
+                                        NEXTTRAN=`echo $LASTTRAN + 1 | bc`
+                                        #echo Next transaction number $NEXTTRAN
+                        else
+                                        #echo "block is void of transactions!"
+                                        # Get next tx number from previous block
+                                        LASTTRAN=`cat $PREVIOUSBLOCK | grep tx | tail -1 | cut -d":" -f 1 | sed 's/tx//g' | sed 's/^0*//g'`
+                                        NEXTTRAN=`echo $LASTTRAN + 1 | bc`
+                                        #echo Next transaction number $NEXTTRAN
+        fi
+
+        [[ -z $LASTTRAN ]] && echo "ERROR: Couldn't find last tranasction number" && exit 1
+
+        checkAccountBal $3
+
+        echo "Amount to send: $AMOUNT"
+        #echo Your current account balanace: $TOTAL
+
+        [[ $AMOUNT -gt $TOTAL ]] && echo "Insufficient Funds!" && exit 1
+
+        echo "Success! Sent $1 bCN to $2"
+        messageEncrypt4reciever=$(echo "$SENDER:$AMOUNT"| openssl rsautl -encrypt -inkey $tmpFolder/RECEIVER_PUBLIC.pem -pubin)
+        echo tx$NEXTTRAN:$RECEIVER:$messageEncrypt4reciever >> $CURRENTBLOCK
+        CHANGETRAN=`echo $NEXTTRAN+1 | bc`
+        CHANGE=`echo $TOTAL-$AMOUNT | bc`
+        messageEncrypt4sender=$(echo "$SENDER:$AMOUNT"| openssl rsautl -encrypt -inkey $tmpFolder/SENDER_PUBLIC.pem -pubin)
+        echo tx$CHANGETRAN:$SENDER:$SENDER:$CHANGE >> $CURRENTBLOCK
+}
+
+validate() {
+        # Check that there are blocks to validate
+        NUMSOLVEDFILES=`ls -1 *.solved | wc -l`
+        (( $NUMSOLVEDFILES < 1 )) && echo "Blockchain must be greater than 1 block to validate" && exit 1
+
+        for i in `ls -1 *.solved | tail -n +2`; do
+                        h=`ls -1 | grep solved$ | grep -B 1 $i | head -1`
+                        j=`ls -1 | egrep "solved$|blk$" | grep -A 1 $i | grep -v $i | tail -1`
+                        PREVHASH=`md5sum $h | cut -d" " -f1`
+                        CALCHASH=`sed "2c$PREVHASH" $i | md5sum | cut -d" " -f1`
+                        REPORTEDHASH=`sed -n '2p' $j`
+                        #echo "Checking $i"
+                        #echo "....."
+                        #echo "PrevHash of $h:                                       $PREVHASH"
+                        #echo "Reported Hash from $j file, this is actually $i hash: $REPORTEDHASH"
+                        #echo "Calculated Hash from $i injected $h file:             $CALCHASH"  
+                        [[ $CALCHASH != $REPORTEDHASH ]] && echo "Hash mismatch!  $i has changed!  Do not trust any block after and including $i" && exit 1 || echo "Hashes match! $i is a good block."
+        done
+        echo "Blockchain validated.  Unbroken Chain."
+}
+
+case "$1" in
+        mine)
+                        validate
+                        findBlocks
+                        checkSyntax
+                        setup
+                        buildWIPBlock
+                        mine
+                        exit 0
+                        ;;
+        minegenesis|minegen)
+                        shift
+                        [[ -z $@ ]] && echo "Usage: ./bashCoin minegenesis <filename>" && echo "This command mines the first block (any file you like)." && exit 1
+                        echo "Setup function is working now"
+			setup
+			echo "mine Generis block function is working now"
+                        mineGenesis $1
+                        ;;
+        send)
+                        shift
+                        [[ -z $@ ]] && echo "Usage: ./bashCoin send <amount> <toAddress> <fromAddress>" && exit 1
+                        findBlocks
+                        send $@
+                        exit 0
+                        ;;
+        checkbalance|checkbal|bal)
+                        shift
+                        [[
+
+ -z $@ ]] && echo "Usage: ./bashCoin bal <address>" && exit 1
+                        checkAccountBal $1
+                        exit 0
+                        ;;
+        findblocks)
+                        findBlocks
+                        ;;
+        validateblockchain|validate|val)
+                        validate
+                        exit 0
+                        ;;
+        *)
+                        echo $"Usage: $0 {mine|send|checkbalance(bal)|minegenesis(minegen)}"
+                        exit 1
+                        ;;
+esac
+
+exit 0

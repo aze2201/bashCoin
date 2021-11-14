@@ -1,0 +1,13 @@
+./bashCoin.sh '{"command": "nothing", "appType": "nothing", "destinationSocketBashCoin": "yes", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "socketID": 2}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "socketID": 3}' > communicate_pipe
+./bashCoin.sh '{"command": "nothing", "appType": "nothing", "destinationSocketBashCoin": "yes", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "socketID": 2}' > communicate_pipe
+./bashCoin.sh '{"command": "nothing", "appType": "nothing", "destinationSocketBashCoin": "yes", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "socketID": 2}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "socketID": 3}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "socketID": 4}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "socketID": 3}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "socketID": 5}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "socketID": 4}' > communicate_pipe
+./bashCoin.sh '{"command": "mine", "appType": "wallet", "socketID": 4}' > communicate_pipe
