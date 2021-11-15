@@ -29,6 +29,7 @@ Remain:
 The bashCoin uses [Websocket](https://en.wikipedia.org/wiki/WebSocket) protocol to interact with other nodes and external 3rt party apps. The websocket protocol help to achieve bidirectional communication. As, it is standarized by **W3C** it is easy to find library for connection in all programming language.
 
 Topology:
+
 ![Alt text](https://github.com/aze2201/bashCoin/blob/main/data/TopologyBashCoin_v1.png?raw=true)
 
 
