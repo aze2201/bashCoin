@@ -2,7 +2,7 @@
 This project still under development. We will keep update about changes on project and documentation of API.
 
 
-##About bashCoin.
+## About bashCoin.
 
 **bashCoin** is cryto cyrrency which is built on top of the blochchain technology. Of course, it is not a hard to change project from crytocurreny to other concept. 
 
@@ -27,7 +27,7 @@ Newtorking
 The bashCoin uses [Websocket](https://en.wikipedia.org/wiki/WebSocket) protocol to interact with other nodes and external 3rt party apps. The websocket protocol help to achieve bidirectional communication. As, it is standarized by **W3C** it is easy to find library for connection in all programming language.
 
 Topology:
-![internal client (bashCoin.sh) - server - external client](https://github.com/aze2201/bashCoin/blob/main/data/TopologyBashCoin_v1.png)
+![Picture1] (https://github.com/aze2201/bashCoin/blob/main/data/TopologyBashCoin_v1.png)
 
 
 It can do:
