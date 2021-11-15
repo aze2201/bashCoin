@@ -9,7 +9,8 @@ This project still under development. We will keep update about changes on proje
 
 ### Architecture of software
 
-**bashCoin.sh**
+1. **bashCoin.sh**
+
 The Core [**bashCoin.sh**](https://github.com/aze2201/bashCoin/blob/main/bin/bashCoin.sh)  software is developed on bash 5.1. 
 
 It can do:
@@ -23,7 +24,7 @@ Remain:
 - Choose longest Chain (to resolve conflict)
 
 
-**socketGateway3.py**
+2. **socketGateway3.py**
  
 [**socketGateway3.py**](https://github.com/aze2201/bashCoin/blob/main/bin/socketGateway3.py) is SOCKET server.
 The bashCoin uses [Websocket](https://en.wikipedia.org/wiki/WebSocket) protocol to interact with other nodes and external 3rt party apps. The websocket protocol help to achieve bidirectional communication. As, it is standarized by **W3C** it is easy to find library for connection in all programming language.
@@ -39,6 +40,8 @@ It can do:
 
 Remain:
 - Local broadcasting for notification (127.0.0.1)
+- External broadcasting about new BLOCK and Transaction
+- Block content provide (base64)
 
 
 ```markdown
