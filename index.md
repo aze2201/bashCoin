@@ -1,12 +1,11 @@
-## Welcome to UNNAMED Blockchain crypto currencty 
-
-You can use the [editor on GitHub](https://github.com/aze2201/bashCoin/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
-
+## Welcome to bashCoin Blockchain crypto currencty.
+This project still under development. We will keep update about changes on project and documentation of API.
 
 
-### Markdown
+### About bashCoin.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+bashCoin is cryto cyrrency which is built on top of the blochchain technology. Of course, it is not a hard to change project from crytocurreny to other concept such us NFT.
+
 
 ```markdown
 Syntax highlighted code block
