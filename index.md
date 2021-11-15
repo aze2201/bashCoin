@@ -8,12 +8,12 @@ This project still under development. We will keep update about changes on proje
 
 
 ### Architecture of software
-TABLE
 
-|_.app      |_.programming          |_.features     |_. attribute list   |
-|core            |bash 5.1 |/3.mining    |^.  None     |
-|               ||transaction validation    |^.  None     |
-|               ||transaction validation    |^.  None     |
+core software is developed on bash 5.1. It can do:
+- Mining next block
+- validating pending transaction and adding to next block
+- printing tranaction data to client for sign it.
+- Adding signed transaction to pending transaction
 
 
 
