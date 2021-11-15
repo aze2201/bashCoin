@@ -10,7 +10,7 @@ This project still under development. We will keep update about changes on proje
 ### Architecture of software
 TABLE
 
-_.app      |_.programming          |_.features     |_. attribute list   |
+|_.app      |_.programming          |_.features     |_. attribute list   |
 |core            |bash 5.1 |/3.mining    |^.  None     |
 |               ||transaction validation    |^.  None     |
 |               ||transaction validation    |^.  None     |
