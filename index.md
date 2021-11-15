@@ -1,10 +1,14 @@
-## Welcome to bashCoin Blockchain crypto currencty.
+# Welcome to bashCoin Blockchain crypto currencty.
 This project still under development. We will keep update about changes on project and documentation of API.
 
 
-### About bashCoin.
+##About bashCoin.
 
-bashCoin is cryto cyrrency which is built on top of the blochchain technology. Of course, it is not a hard to change project from crytocurreny to other concept such us NFT.
+**bashCoin** is cryto cyrrency which is built on top of the blochchain technology. Of course, it is not a hard to change project from crytocurreny to other concept. 
+
+
+### Architecture of software
+|app |programming lang|features
 
 
 ```markdown
