@@ -46,7 +46,13 @@ Remain:
 - PEM password autofill for next session.
 
 
+### Here is project start. 
+
+This steps will be automated soon. 
+
+
 ```markdown
+
 # Start project
 
 
@@ -85,4 +91,3 @@ For more details see [Basic writing and formatting syntax](https://docs.github.c
 
 
 ### Author: Fariz Muradov
-
