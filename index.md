@@ -9,7 +9,7 @@ This project still under development. We will keep update about changes on proje
 
 ### Architecture of software
 
-core software is developed on bash 5.1. It can do:
+The Core bashCoin.sh[Link](https://github.com/aze2201/bashCoin/blob/main/bin/bashCoin.sh)  software is developed on bash 5.1. It can do:
 - Mining next block
 - validating pending transaction and adding to next block
 - printing tranaction data to client for sign it.
