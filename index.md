@@ -35,31 +35,49 @@ Topology:
 
 
 It can do:
-- Find internal socket id which is executing bashCoin.sh
-- Return result to who requested. 
+- Find internal socket id which is executing bashCoin.sh from external and internal.
+- Return the result to requested Client ID (As local executer also is socket client, Server don't trank session).
+- SSL support by Peer Node Key-Pair
 
 Remain:
-- Local broadcasting for notification (127.0.0.1)
-- External broadcasting about new BLOCK and Transaction
-- Block content provide (base64)
+- Local broadcasting for notification (127.0.0.1).
+- External broadcasting about new BLOCK and Transaction.
+- Block content provide (base64).
+- PEM password autofill for next session.
 
 
 ```markdown
-Syntax highlighted code block
+# Start project
 
-# Header 1
-## Header 2
-### Header 3
 
-- Bulleted
-- List
+> git clone https://github.com/aze2201/bashCoin.git
 
-1. Numbered
-2. List
+# start server
+> cd bashCoin/bin
+> python3 socketGateway3.py
 
-**Bold** and _Italic_ and `Code` text
+# start local client. this app will send data to bashCoin.sh file.
+# open new session
+> cd bashCoin/bin
+> exec 3<> communicate_pipe
+cat communicate_pipe - | python3 wsdump.py  -r --text '{"command":"nothing","appType":"nothing","destinationSocketBashCoin":"yes"}' ws://127.0.0.1:8001 | while read line; do   
+  res=$(echo ${line} | grep "{" | grep "}");  
+  if [ $? -eq 0 ]; then     
+    line=$(echo -e ${line});
+    echo "$line" >> ../log/line.log
+    cmd="./bashCoin.sh  '${line}' > communicate_pipe"; 
+    echo $cmd >> ../log/command.log   
+    eval $cmd;
+  fi; 
+done
 
-[Link](url) and ![Image](src)
+## start another client
+> python wsdump.py wss://127.0.0.1:8001
+# send below JSON message to get Balance
+> {"command":"checkbalance","ACCTNUM":"50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034"}
+
+{"command": "checkbalance", "status": "0", "destinationSocket": "3", "result": {"publicKeyHASH256": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "balance": "46"}}
+
 ```
 
 For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
