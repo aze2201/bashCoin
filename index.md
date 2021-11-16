@@ -66,7 +66,7 @@ This steps will be automated soon.
 # open new session
 > cd bashCoin/bin
 > exec 3<> communicate_pipe
-cat communicate_pipe - | python3 wsdump.py  -r --text '{"command":"nothing","appType":"nothing","destinationSocketBashCoin":"yes"}' ws://127.0.0.1:8001 | while read line; do   
+> cat communicate_pipe - | python3 wsdump.py  -r --text '{"command":"nothing","appType":"nothing","destinationSocketBashCoin":"yes"}' ws://127.0.0.1:8001 | while read line; do   
   res=$(echo ${line} | grep "{" | grep "}");  
   if [ $? -eq 0 ]; then     
     line=$(echo -e ${line});
@@ -76,7 +76,7 @@ cat communicate_pipe - | python3 wsdump.py  -r --text '{"command":"nothing","app
     eval $cmd;
   fi; 
 done
-
+> 
 ## start another client
 > python wsdump.py wss://127.0.0.1:8001
 # send below JSON message to get Balance
