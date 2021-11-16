@@ -88,4 +88,4 @@ done
 
 
 
-### Author: Fariz Muradov
+### Author: [Fariz Muradov](https://github.com/aze2201/bashCoin/blob/main/bin/socketGateway3.py)
