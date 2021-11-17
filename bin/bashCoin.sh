@@ -153,6 +153,7 @@ chooseHihFeeTransactions() {
 }
 
 validateTransactionsForMine() {
+        ## ADD EACH TRANSCATION ACCOUNT CHECK (historical )
         tempFolder="$tempRootFolder/$RANDOM"
         mkdir $tempFolder
         res=$(cat blk.pending | grep "TX*")
@@ -246,7 +247,8 @@ mine () {
         printf "## Previous Block Hash: ###################################################################\n" >> $NEXTBLOCK
         printf "$HASH\n\n" >> $NEXTBLOCK
         #echo "{'command':'notification','messageType':'broadcast',status':0, 'timeUTC':'$(date -u  +"%Y%m%d%H%M%S")',difficulty':$DIFF,'MINEDBLOCK':'$PREVIOUSBLOCK','NEXTBLOCK':'$CURRENTBLOCK'}"
-        echo "{\"command\":\"notification\",\"appType\":\"$appType\",\"destinationSocket\":\"$fromSocket\",\"messageType\":\"broadcast\",\"status\":\"0\", \"timeUTC\":\"$(date -u  +"%Y%m%d%H%M%S")\",\"difficulty\":\"$DIFF\",\"MINEDBLOCK\":\"$PREVIOUSBLOCK\",\"NEXTBLOCK\":\"$CURRENTBLOCK\"}"
+        #echo "{\"command\":\"notification\",\"appType\":\"$appType\",\"destinationSocket\":\"$fromSocket\",\"messageType\":\"broadcast\",\"status\":\"0\", \"timeUTC\":\"$(date -u  +"%Y%m%d%H%M%S")\",\"difficulty\":\"$DIFF\",\"MINEDBLOCK\":\"$PREVIOUSBLOCK\",\"NEXTBLOCK\":\"$CURRENTBLOCK\"}"
+        echo "{\"command\":\"notification\",\"appType\":\"$appType\",\"messageType\":\"broadcast\",\"status\":\"0\", \"timeUTC\":\"$(date -u  +"%Y%m%d%H%M%S")\",\"difficulty\":\"$DIFF\",\"MINEDBLOCK\":\"$PREVIOUSBLOCK\",\"NEXTBLOCK\":\"$CURRENTBLOCK\"}"
 
 }
 
@@ -355,7 +357,7 @@ checkAccountBal () {
         TOTAL=`echo $LASTCHANGE+$RECAFTERCHANGE+$SUM | bc`
         #echo "Current Balance for $ACCTNUM:     $TOTAL"
         #echo "{\'command\':'getBalance\',\'publicKeyHASH256\':\'$ACCTNUM\',\'status\':\'0\',\'balance\':\'$TOTAL\',\'description\':\'none\'}"
-        echo "{\"command\":\"checkbalance\",\"status\":\"0\",\"destinationSocket\":\"$fromSocket\",\"result\":{\"publicKeyHASH256\":\"$ACCTNUM\",\"balance\":\"$TOTAL\"}}"
+        echo "{\"command\":\"checkbalance\",\"messageType\":\"direct\" , \"status\":\"0\",\"destinationSocket\":\"$fromSocket\",\"result\":{\"publicKeyHASH256\":\"$ACCTNUM\",\"balance\":\"$TOTAL\"}}"
 }
 
 
@@ -489,9 +491,12 @@ case "$command" in
         nothing)
                         exit 0
                         ;;
+        notification)
+                        exit 0
+                        ;;
         *)
                         #echo $"Usage: $0 {mine|send|checkbalance(bal)|minegenesis(minegen)}"
-                        echo "{\"command\":\"help\",\"description\":\"Only JSON\"}"
+                        echo "{\"command\":\"help\",\"description\":\"Only JSON\",\"messageType\":\"direct\"}"
                         exit 1
                         ;;
 esac

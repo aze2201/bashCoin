@@ -136,7 +136,7 @@ def message_received(client, server, message):
 
 
 # server = WebsocketServer(host='0.0.0.0',port=8001)
-server = WebsocketServer(host='0.0.0.0',port=8001,key="/root/peer2peer/cert/example.com.key", cert="/root/peer2peer/cert/example.com.csr",loglevel=logging.DEBUG)
+server = WebsocketServer(host='0.0.0.0',port=8002,key="/root/peer2peer/cert/key.pem", cert="/root/peer2peer/cert/cert.pem",loglevel=logging.DEBUG)
 server.set_fn_client_left(client_left1)
 server.set_fn_new_client(new_client)
 server.set_fn_message_received(message_received)
