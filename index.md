@@ -34,6 +34,9 @@ Topology:
 ![Alt text](https://github.com/aze2201/bashCoin/blob/main/data/TopologyBashCoin_v1.png?raw=true)
 
 
+Peer to Peer flow:
+![Alt text](https://github.com/aze2201/bashCoin/blob/main/data/p2pCropped.gif?raw=true)
+
 It can do:
 - Find internal socket id which is executing bashCoin.sh from external and internal.
 - Return the result to requested Client ID (As local executer also is socket client, Server don't trank session).
