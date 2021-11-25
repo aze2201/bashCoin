@@ -1,6 +1,6 @@
 #!/bin/bash
 
-        version=1.2.2.0
+        version=1.2.2.3
         ## description (Interface message change to JSON. make messages competable with WebSocket)
         REWARD_COIN=2
 
@@ -39,10 +39,16 @@ jsonMessage=$1
 jsonMessage=$(echo "$jsonMessage"| sed "s/'/\"/g")
 command=$(echo "${jsonMessage}"  | jq -r '.command')
 appType=$(echo "${jsonMessage}"  | jq -r '.appType')
+fromSocket=$(echo ${jsonMessage}  | jq -r '.socketID')
 
 ## Functions ##################################################
 
 [ ! -f $BLOCKPATH/blk.pending ] && touch $BLOCKPATH/blk.pending
+
+
+. $ROOTDIR/bin/functBlockFromNetwork.sh
+. $ROOTDIR/bin/mapFunction2Code.sh 
+
 
 ppassword() {
         ## this function created global Password variable to put OpenSSL command line.
@@ -94,13 +100,13 @@ findBlocks() {
 checkSyntax () {
         # Checks to see if difficulty was setup properly
         if [ $DIFF -lt 1 ] || [ $DIFF -gt 32 ]
-                        then
-                                        echo "Please set difficulty to 1 through 32"
-                                        exit 1
+                then
+                echo "Please set difficulty to 1 through 32"
+                exit 1
         fi
         #echo "Previous Block:                                               "$PREVIOUSBLOCK
         #echo "Current Block:                                "$CURRENTBLOCK
-        SESSION_MESSAGE="{"\"command\"":"\"checkSyntax\"",\""status\"":0,\""PREVIOUSBLOCK\"":\""$PREVIOUSBLOCK\"","CURRENTBLOCK":"\"$CURRENTBLOCK\""}"        
+        SESSION_MESSAGE="{"\"command\"":"\"checkSyntax\"",\"status\":0,\""PREVIOUSBLOCK\"":\""$PREVIOUSBLOCK\"","CURRENTBLOCK":"\"$CURRENTBLOCK\""}"        
         #SESSION_MESSAGE=$SESSION_MESSAGE\'
         #printf 'visit:%s\n' "$site"
         #echo $SESSION_MESSAGE
@@ -121,20 +127,7 @@ setup () {
  }
 
 
-listNewBlock() {
-        fromSocket=$(echo ${jsonMessage}  | jq -r '.socketID')
-        fromBlockID=$(echo ${jsonMessage}  | jq -r '.fromBlockID')
-        lastBlockInLocal=$(ls -1 $BLOCKPATH| grep solved$| sort -n -k 1 | tail -n 1| awk -v FS='.' '{print $1}')
-        listMissingBlocksID=$(echo $lastBlockInLocal-$fromBlockID | bc)
-        if [ $listMissingBlocksID -ge 0 ]; then
-                listMissingBlocks=$(ls -1 $BLOCKPATH | grep solved$| sort -nr -k 1 | head -$listMissingBlocksID)
-                #echo "[\'$(echo ${listMissingBlocks}| awk -v IFS="\s" -v OFS="', ' " '{print}')\']"
-                #echo "{\'command\':\'listNewBlock\',\'status\':\'0\',\'error\':\'0\', \'blockList\': [\\\"$(echo ${listMissingBlocks}| awk 'BEGIN { OFS = "\\\",\\\"" } { $1 = $1; print }')\\\"]}"
-                echo "{\"command\":\"listNewBlock\",\"destinationSocket\":\"$fromSocket\",\"status\":\"0\",\"result\":{\"blockList\": [\""$(echo ${listMissingBlocks}| awk 'BEGIN { OFS = "\",\"" } { $1 = $1; print }')\""]}}"
 
-        fi
-
-}
 chooseHihFeeTransactions() {
         transactionsFile=$1
         tempFolder="$tempRootFolder/$RANDOM"
@@ -146,7 +139,7 @@ chooseHihFeeTransactions() {
                 transactionsTime=$(echo ${highFeeTransactions}| awk -v FS=':' '{print $6}')
                 echo $highFeeTransactions
                 # this is balance change, no need to take fee from that. fee already in send-reciever transacrtion.
-                cat $transactionsFile| grep "TX"| awk -v transactionsTime=$transactionsTime -v sender=$sender -v reciever=$reciever -v FS=':' '{if ($2==sender && $3==reciever && $6==transactionsTime) print}'
+                cat $transactionsFile| grep 'ˆTX'| awk -v transactionsTime=$transactionsTime -v sender=$sender -v reciever=$reciever -v FS=':' '{if ($2==sender && $3==reciever && $6==transactionsTime) print}'
         done | sort  -t ":" -k1,1 -u
 
 
@@ -180,10 +173,10 @@ buildWIPBlock () {
         #SIGN=$1
         printf "`cat $CURRENTBLOCK`\n"    >  $CURRENTBLOCK.wip
         printf "HEADERS:\n"               >> $CURRENTBLOCK.wip
-        printf "BLOCKID: $CURRENTBLOCK\n" >> $CURRENTBLOCK.wip
-        printf "DateTime: $DATE\n"        >> $CURRENTBLOCK.wip
-        printf "Version: $version\n"      >> $CURRENTBLOCK.wip
-        printf "Difficulty: $DIFF\n"      >> $CURRENTBLOCK.wip
+        printf "BLOCKID:$CURRENTBLOCK.solved\n" >> $CURRENTBLOCK.wip
+        printf "Version:$version\n"      >> $CURRENTBLOCK.wip
+        printf "Difficulty:$DIFF\n"      >> $CURRENTBLOCK.wip
+        printf "DateTime:$DATE\n"        >> $CURRENTBLOCK.wip
         echo  >> $CURRENTBLOCK.wip
         echo  >> $CURRENTBLOCK.wip
         ## this is valid transactions
@@ -199,14 +192,15 @@ buildWIPBlock () {
         echo >> $CURRENTBLOCK.wip
         echo >> $CURRENTBLOCK.wip
         echo "## SIGNATURE: #################################################################################" >> $CURRENTBLOCK.wip
-        echo "PublicKey: $SENDER_PUBKEY" >> $CURRENTBLOCK.wip
-        echo "SIGNATURE: $(cat $CURRENTBLOCK.wip| openssl dgst -sign ${privateKeyFile} -keyform PEM -sha256 -passin pass:$Password| base64 | tr '\n' ' ' | sed 's/ //g')" >> $CURRENTBLOCK.wip
+        echo "BlockSignPublicKey: $SENDER_PUBKEY" >> $CURRENTBLOCK.wip
+        echo "BlockSignSIGNATURE: $(cat $CURRENTBLOCK.wip| openssl dgst -sign ${privateKeyFile} -keyform PEM -sha256 -passin pass:$Password| base64 | tr '\n' ' ' | sed 's/ //g')" >> $CURRENTBLOCK.wip
         #echo "buildWIPBlock ....."
 }
 
 
 
 mine () {
+        commandCode=$(mapFunction2Code ${FUNCNAME[0]})
         ## ADD CONTROL. THIS MESSAGE SHOULD COME FROM INTERNAL IP ADDRESS. (MINER GUI)
         ## THIS MESSAGE IS BROADCAST
         fromSocket=$(echo ${jsonMessage}  | jq -r '.socketID')
@@ -246,13 +240,15 @@ mine () {
         # Setup the next block.  Add previous hash first
         printf "## Previous Block Hash: ###################################################################\n" >> $NEXTBLOCK
         printf "$HASH\n\n" >> $NEXTBLOCK
+
         #echo "{'command':'notification','messageType':'broadcast',status':0, 'timeUTC':'$(date -u  +"%Y%m%d%H%M%S")',difficulty':$DIFF,'MINEDBLOCK':'$PREVIOUSBLOCK','NEXTBLOCK':'$CURRENTBLOCK'}"
         #echo "{\"command\":\"notification\",\"appType\":\"$appType\",\"destinationSocket\":\"$fromSocket\",\"messageType\":\"broadcast\",\"status\":\"0\", \"timeUTC\":\"$(date -u  +"%Y%m%d%H%M%S")\",\"difficulty\":\"$DIFF\",\"MINEDBLOCK\":\"$PREVIOUSBLOCK\",\"NEXTBLOCK\":\"$CURRENTBLOCK\"}"
-        echo "{\"command\":\"notification\",\"appType\":\"$appType\",\"messageType\":\"broadcast\",\"status\":\"0\", \"timeUTC\":\"$(date -u  +"%Y%m%d%H%M%S")\",\"difficulty\":\"$DIFF\",\"MINEDBLOCK\":\"$PREVIOUSBLOCK\",\"NEXTBLOCK\":\"$CURRENTBLOCK\"}"
+        echo "{\"command\":\"notification\",\"commandCode\":\"$commandCode\",\"appType\":\"$appType\",\"messageType\":\"broadcast\",\"status\":\"0\", \"timeUTC\":\"$(date -u  +"%Y%m%d%H%M%S")\",\"difficulty\":\"$DIFF\",\"MINEDBLOCK\":\"$PREVIOUSBLOCK\",\"NEXTBLOCK\":\"$CURRENTBLOCK\"}"
 
 }
 
 mineGenesis () {
+        commandCode=$(mapFunction2Code ${FUNCNAME[0]})
         # first check to see if there is a blockchain already, if so exit so we don't overwrite
         [[ -f 1.blk.solved ]] && echo "A mined Genesis block already exists in this folder!" && exit 1
 
@@ -282,26 +278,11 @@ mineGenesis () {
         printf "$HASH\n\n" >> 2.blk
 }
 
-AddTransactionFromNetwork() {
-        MESSAGE=$1
-        ## verify transaction hash with message
-        ## looks hash on history
-        ## check balance and validate it first
-}
 
-AddBlockFromNetwork() {
-        # get file by BASE64 format.
-        FILENAME=$1
-        #echo "check really block exists with Hash (all previus)"
-        #echo "if already in there then Ignore"
-        #echo "if not exist check time stamp (should be new)"
-        #echo "verity transactions with time and signatures (time also should be new)"
-        #echo "check block SIGNATURE"
-        #echo "block number take and put in place (always BLOCKID should be next) "
-}
 
 
 checkAccountBal () {
+        commandCode=$(mapFunction2Code ${FUNCNAME[0]})
         fromSocket=$(echo ${jsonMessage}  | jq -r '.socketID')
         ACCTNUM=$(echo ${jsonMessage}  | jq -r '.ACCTNUM')
         #ACCTNUM=$1
@@ -357,12 +338,13 @@ checkAccountBal () {
         TOTAL=`echo $LASTCHANGE+$RECAFTERCHANGE+$SUM | bc`
         #echo "Current Balance for $ACCTNUM:     $TOTAL"
         #echo "{\'command\':'getBalance\',\'publicKeyHASH256\':\'$ACCTNUM\',\'status\':\'0\',\'balance\':\'$TOTAL\',\'description\':\'none\'}"
-        echo "{\"command\":\"checkbalance\",\"messageType\":\"direct\" , \"status\":\"0\",\"destinationSocket\":\"$fromSocket\",\"result\":{\"publicKeyHASH256\":\"$ACCTNUM\",\"balance\":\"$TOTAL\"}}"
+        echo "{\"command\":\"checkbalance\",\"commandCode\":\"$commandCode\",\"messageType\":\"direct\" , \"status\":\"0\",\"destinationSocket\":\"$fromSocket\",\"result\":{\"publicKeyHASH256\":\"$ACCTNUM\",\"balance\":\"$TOTAL\"}}"
 }
 
 
 
 getTransactionMessageForSign() {
+        commandCode=$(mapFunction2Code ${FUNCNAME[0]})
         #fromSocket=$(echo ${jsonMessage}  | jq -r '.getTransactionMessageForSign')
         fromSocket=$(echo ${jsonMessage}  | jq -r '.socketID'|sed "s/\"//g")
         SENDER=$(echo ${jsonMessage}  | jq -r '.ACCTNUM'|sed "s/\"//g")
@@ -396,7 +378,7 @@ getTransactionMessageForSign() {
         TOTAL=$(checkAccountBal \'{"command":"checkbalance","ACCTNUM":"$SENDER"} \' |  jq '.result'  | jq '.balance'| sed "s/\"//g")
 
         [[ $AMOUNT -gt $TOTAL ]] &&
-        echo "{ \"command\":\"getTransactionMessageForSign\",\"status\":1,\"destinationSocket\":\"$fromSocket\",\"SENDER\":\"$SENDER\",\"result\":{\"description\":\"Insufficient Funds!\"}}" && exit 1
+        echo "{ \"command\":\"getTransactionMessageForSign\",\"messageType\":\"direct\",\"commandCode\":\"$commandCode\",\"status\":2,\"destinationSocket\":\"$fromSocket\",\"SENDER\":\"$SENDER\",\"result\":{\"description\":\"Insufficient Funds!\"}}" && exit 1
         
         dateTime=$DATEEE
 
@@ -404,23 +386,26 @@ getTransactionMessageForSign() {
 
         ## ADDING BY SYSTEM 
         CHANGE=`echo $TOTAL-$AMOUNT-$FEE | bc`
-        echo "{ \"command\":\"getTransactionMessageForSign\", \"status\":0,\"destinationSocket\":\"$fromSocket\",\"result\":{\"forReciverData\":\"$SENDER:$RECEIVER:$AMOUNT:$FEE:$dateTime\",\"forSenderData\":\"$SENDER:$SENDER:$CHANGE:0:$dateTime\"}}"
+        echo "{ \"command\":\"getTransactionMessageForSign\",\"messageType\":\"direct\", \"status\":0,\"destinationSocket\":\"$fromSocket\",\"result\":{\"forReciverData\":\"$SENDER:$RECEIVER:$AMOUNT:$FEE:$dateTime\",\"forSenderData\":\"$SENDER:$SENDER:$CHANGE:0:$dateTime\"}}"
 }
 
 pushSignedMessageToPending() {
+    commandCode=$(mapFunction2Code ${FUNCNAME[0]})
     forReciverData=$1
     forSenderData=$2
     ## here we can validate it first before pushing to Pending Transaction
     echo "$forReciverData" >> blk.pending
     echo "$forSenderData"  >> blk.pending
     if [ $? -eq 0 ]; then
-        echo "{'command':'pushSignedMessageToPending','status':0}"
+        echo "{'command':'pushSignedMessageToPending','status':0,\"messageType\":\"direct\",\"destinationSocket\":$fromSocket,\"commandCode\":\"$commandCode\"}"
+        echo "{'command':'pushSignedMessageToPending','status':0,\"messageType\":\"broadcast\",\"commandCode\":\"$commandCode\"}"
     fi
 }
 
 
 
 validate() {
+        fromSocket=$(echo ${jsonMessage}  | jq -r '.socketID'|sed "s/\"//g")
         # Check that there are blocks to validate
         NUMSOLVEDFILES=`ls -1 *.solved | wc -l`
         (( $NUMSOLVEDFILES < 1 )) && echo "Blockchain must be greater than 1 block to validate" && exit 1
@@ -431,12 +416,14 @@ validate() {
                         PREVHASH=`md5sum $h | cut -d" " -f1`
                         CALCHASH=`sed "2c$PREVHASH" $i | md5sum | cut -d" " -f1`
                         REPORTEDHASH=`sed -n '2p' $j` 
-                        [[ $CALCHASH != $REPORTEDHASH ]] && echo "Hash mismatch!  $i has changed!  Do not trust any block after and including $i" && exit 1
+                        [[ $CALCHASH != $REPORTEDHASH ]] && 
+                        echo "{ \"command\":\"validate\", \"status\":2,\"destinationSocket\":\"$fromSocket\",\"message\":\"Hash mismatch!  $i has changed!  Do not trust any block after and including $i\"}" &&
+                        exit 1
+                        #echo "Hash mismatch!  $i has changed!  Do not trust any block after and including $i"
                         #echo "Hashes match! $i is a good block."
         done
-        #echo "Blockchain validated.  Unbroken Chain."
+        #echo "{ \"command\":\"validate\", \"status\":0,\"destinationSocket\":\"$fromSocket\",\"message\":\"Good blocks\"}"
 }
-
 
 
 case "$command" in
@@ -488,15 +475,25 @@ case "$command" in
                         shift
                         getTransactionMessageForSign $@
                         ;;
+        provideBlocks)
+                        #shift
+                        provideBlocks $@
+                        ;;
+        AddBlockFromNetwork)
+                        #shift
+                        AddBlockFromNetwork $@
+                        validate
+                        ;;
         nothing)
                         exit 0
                         ;;
         notification)
+                        echo $jsonMessage
                         exit 0
                         ;;
         *)
                         #echo $"Usage: $0 {mine|send|checkbalance(bal)|minegenesis(minegen)}"
-                        echo "{\"command\":\"help\",\"description\":\"Only JSON\",\"messageType\":\"direct\"}"
+                        echo "{\"command\":\"help\",\"description\":\"get more detail from https://aze2201.github.io/bashCoin\",\"messageType\":\"direct\"}"
                         exit 1
                         ;;
 esac

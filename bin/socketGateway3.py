@@ -15,8 +15,10 @@ clients = {}
 #   {"command":"notification","messageType":"direct"}
 #   {"command":"checkbalance","ACCTNUM":"50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034","messageType":"direct"}
 #   {"command":"listNewBlock","fromBlockID":70,"messageType":"direct"}
+#   {"command":"provideBlocks","messageType":"direct","blockList": ["blk.pending","133.blk.solved","132.blk.solved","131.blk.solved"]}
+#   {"command":"AddBlockFromNetwork","messageType":"direct","blockList": ["base64","base64"]}
 #   {"command":"getTransactionMessageForSign","messageType":"direct","SENDER":"50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034","RECEIVER":"b1bd54c941aef5e0096c46fd21d971b3a3cf5325226afb89c0a9d6845a491af6","AMOUNT":5,"FEE":3,"DATEEE":"202111121313"}
-
+#   {"command":"validate"} // CLI 
 
 
 def client_left(client, server):
@@ -79,6 +81,7 @@ def WhereBashCoin(jsonData,serchKey,valueIs,printKeyValue):
 def msg_received(client, server, msg):
     # Handle messages routing between clients
     if msg != "":
+        print ("Message is: "+str(msg))
         try:
             msg=json.loads(str(msg).encode('utf-8'))
             ## this is inital for communication_pipe client
@@ -106,7 +109,7 @@ def msg_received(client, server, msg):
             else:
             ################################### MESAGE FROM EXTERNAL to LOCAL ########################
                 ## SECURITY: put command list from external to internal.
-                if msg['command'] in ['help','notification','nothing','listNewBlock','getTransactionMessageForSign','checkbalance','pushSignedMessageToPending','price']:
+                if msg['command'] in ['help','AddBlockFromNetwork','provideBlocks','notification','nothing','listNewBlock','getTransactionMessageForSign','checkbalance','pushSignedMessageToPending','price']:
                     # socketID is message originator always
                     msg.update({'socketID':client['id']})
                     if msg['messageType']=='direct':
@@ -118,7 +121,6 @@ def msg_received(client, server, msg):
                             if clients[i]['id'] != msg['socketID']:
                                 print ("mesage getmelidi bura: "+str(clients[i]))
                                 server.send_message(clients[i], str(msg).replace("u'","'").replace("'","\""))
-
         except Exception as e:
             logging.error(traceback.format_exc())
             print ("Problem "+str(msg)+", and PROBLEM is "+str(e))
