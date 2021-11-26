@@ -35,7 +35,7 @@ Topology:
 
 
 Peer to Peer flow:
-![Alt text](https://github.com/aze2201/bashCoin/blob/main/data/p2pCropped.gif?raw=true)
+![Alt text](https://github.com/aze2201/bashCoin/blob/main/doc/img/p2pCropped.gif?raw=true)
 
 It can do:
 - Find internal socket id which is executing bashCoin.sh from external and internal.
