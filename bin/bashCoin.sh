@@ -1,6 +1,6 @@
 #!/bin/bash
 
-        version=1.2.2.3
+        version=1.2.2.4
         ## description (Interface message change to JSON. make messages competable with WebSocket)
         REWARD_COIN=2
 
@@ -26,6 +26,7 @@
         privateKeyFile="$ROOTDIR/cert/example.com.key"
         publicKeyFile="$ROOTDIR/cert/example.com.pub"
         BLOCKPATH="$ROOTDIR/data/blocks"
+        FSDATABASE="$ROOTDIR/data"
         tempRootFolder=$ROOTDIR/temp
 
 # mine top
@@ -196,7 +197,6 @@ buildWIPBlock () {
         echo "BlockSignSIGNATURE: $(cat $CURRENTBLOCK.wip| openssl dgst -sign ${privateKeyFile} -keyform PEM -sha256 -passin pass:$Password| base64 | tr '\n' ' ' | sed 's/ //g')" >> $CURRENTBLOCK.wip
         #echo "buildWIPBlock ....."
 }
-
 
 
 mine () {

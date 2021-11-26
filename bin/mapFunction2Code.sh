@@ -39,3 +39,4 @@ mapFunction2Code () {
         esac
         echo $code
 }
+
