@@ -31,7 +31,7 @@ The bashCoin uses [Websocket](https://en.wikipedia.org/wiki/WebSocket) protocol 
 
 Topology:
 
-![Alt text](https://github.com/aze2201/bashCoin/blob/main/data/TopologyBashCoin_v1.png?raw=true)
+![Alt text](https://github.com/aze2201/bashCoin/blob/main/doc/img/TopologyBashCoin_v1.png?raw=true)
 
 
 Peer to Peer flow:
