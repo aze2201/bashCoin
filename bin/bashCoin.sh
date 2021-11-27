@@ -26,7 +26,7 @@
         privateKeyFile="$ROOTDIR/cert/example.com.key"
         publicKeyFile="$ROOTDIR/cert/example.com.pub"
         BLOCKPATH="$ROOTDIR/data/blocks"
-        FSDATABASE="$ROOTDIR/data"
+        FSDATABASE="$ROOTDIR/data/fsDB/"
         tempRootFolder=$ROOTDIR/temp
 
 # mine top
@@ -48,7 +48,8 @@ fromSocket=$(echo ${jsonMessage}  | jq -r '.socketID')
 
 
 . $ROOTDIR/bin/functBlockFromNetwork.sh
-. $ROOTDIR/bin/mapFunction2Code.sh 
+. $ROOTDIR/bin/functTransactionFromNetwork.sh
+. $ROOTDIR/bin/functMapFunc2Code.sh
 
 
 ppassword() {
@@ -389,18 +390,7 @@ getTransactionMessageForSign() {
         echo "{ \"command\":\"getTransactionMessageForSign\",\"messageType\":\"direct\", \"status\":0,\"destinationSocket\":\"$fromSocket\",\"result\":{\"forReciverData\":\"$SENDER:$RECEIVER:$AMOUNT:$FEE:$dateTime\",\"forSenderData\":\"$SENDER:$SENDER:$CHANGE:0:$dateTime\"}}"
 }
 
-pushSignedMessageToPending() {
-    commandCode=$(mapFunction2Code ${FUNCNAME[0]})
-    forReciverData=$1
-    forSenderData=$2
-    ## here we can validate it first before pushing to Pending Transaction
-    echo "$forReciverData" >> blk.pending
-    echo "$forSenderData"  >> blk.pending
-    if [ $? -eq 0 ]; then
-        echo "{'command':'pushSignedMessageToPending','status':0,\"messageType\":\"direct\",\"destinationSocket\":$fromSocket,\"commandCode\":\"$commandCode\"}"
-        echo "{'command':'pushSignedMessageToPending','status':0,\"messageType\":\"broadcast\",\"commandCode\":\"$commandCode\"}"
-    fi
-}
+
 
 
 
@@ -483,6 +473,12 @@ case "$command" in
                         #shift
                         AddBlockFromNetwork $@
                         validate
+                        ;;
+        pushSignedMessageToPending)
+                        pushSignedMessageToPending $@
+                        ;;
+        updateNetworkInfo)
+                        updateNetworkInfo $@
                         ;;
         nothing)
                         exit 0

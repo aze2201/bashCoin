@@ -19,7 +19,8 @@ clients = {}
 #   {"command":"listNewBlock","fromBlockID":70,"messageType":"direct"}
 #   {"command":"provideBlocks","messageType":"direct","blockList": ["blk.pending","133.blk.solved","132.blk.solved","131.blk.solved"]}
 #   {"command":"AddBlockFromNetwork","messageType":"direct","blockList": ["base64","base64"]}
-#   {"command":"getTransactionMessageForSign","messageType":"direct","SENDER":"50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034","RECEIVER":"b1bd54c941aef5e0096c46fd21d971b3a3cf5325226afb89c0a9d6845a491af6","AMOUNT":5,"FEE":3,"DATEEE":"202111121313"}
+#   {"command":"getTransactionMessageForSign","messageType":"direct","ACCTNUM":"50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034","RECEIVER":"b1bd54c941aef5e0096c46fd21d971b3a3cf5325226afb89c0a9d6845a491af6","AMOUNT":5,"FEE":3,"DATEEE":"202111121313"}
+#   {"command":"pushSignedMessageToPending", "messageType": "direct", "result": {"forReciverData": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034:b1bd54c941aef5e0096c46fd21d971b3a3cf5325226afb89c0a9d6845a491af6:5:3:202111121313", "forSenderData": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034:50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034:38:0:202111121313"}}
 #   {"command":"validate"} // CLI
 
 
@@ -55,10 +56,12 @@ def client_left(client, server):
 # This list for build connected device list. Client Graph algo will find whether it can reach main network or not.
 selfIPaddress = requests.get('https://checkip.amazonaws.com').text.strip()
 allConnected=[]
+
 def new_client(client, server):
     # connection list
     allConnected.append([selfIPaddress,client['address'][0]])
-    msg={"command":"updateInfo","peers":allConnected}
+    #msg={"command":"updateInfo","peers":allConnected}
+    msg={"command":"nothing","peers":allConnected}
     clients[client['id']] = client
     print ("Connected Example: "+str(clients))
     server.send_message(clients[client['id']], str(msg).replace("u'","'").replace("'","\""))
@@ -90,8 +93,12 @@ def msg_received(client, server, msg):
                     if msg['messageType']=='broadcast':
                         ## MAKE THIT BY SECRET FILE CODE
                         # python3 wsdump.py  -r --text '{"command":"nothing","appType":"nothing","destinationSocketBashCoin":"yes"}' ws://127.0.0.1:8001
+                        if 'exceptSocket' in msg:
+                            exceptID=msg['exceptSocket']
+                        else:
+                            exceptID=WhereBashCoin(clients,'destinationSocketBashCoin','yes','id')
                         for i in clients:
-                            if clients[i]['id'] != WhereBashCoin(clients,'destinationSocketBashCoin','yes','id'):
+                            if clients[i]['id'] != WhereBashCoin(clients,'destinationSocketBashCoin','yes','id') or clients[i]['id']!=exceptID :
                                 server.send_message(clients[i], str(msg).replace("u'","'").replace("'","\""))
                     else:
                         # if message come from inside (no destination set) and message type is not 'broadcast' then 
@@ -103,17 +110,19 @@ def msg_received(client, server, msg):
                 print ("Iceriden cole "+str(cl)+" message: "+str(msg))
                 server.send_message(cl, str(msg).replace("u'","'").replace("'","\""))
             else:
-            ################################### MESAGE FROM EXTERNAL to LOCAL ########################
+            ################################### MESAGE FROM EXTERNAL ########################
                 ## SECURITY: put command list from external to internal.
                 if msg['command'] in ['help','AddBlockFromNetwork','provideBlocks','notification','nothing','listNewBlock','getTransactionMessageForSign','checkbalance','pushSignedMessageToPending','price']:
                     # socketID is message originator always
                     msg.update({'socketID':client['id']})
                     if msg['messageType']=='direct':
-                        ## MAKE THIT BY SECRET FILE CODE
+                        ## MAKE THIS BY SECRET FILE CODE
                         server.send_message(clients[WhereBashCoin(clients,'destinationSocketBashCoin','yes','id')], str(msg).replace("u'","'").replace("'","\""))
                     if msg['messageType']=='broadcast':
                         ## THIS IS DANGER. NEED TO CONTROL MESSAGE CONTENT not to Broadcast
                         for i in clients:
+                            print ("i is: "+str(i)+" i++ is: "+str(i+1))
+                            ## send to all except source
                             if clients[i]['id'] != msg['socketID']:
                                 print ("mesage getmelidi bura: "+str(clients[i]))
                                 server.send_message(clients[i], str(msg).replace("u'","'").replace("'","\""))

@@ -51,17 +51,7 @@ checkBlockSignature() {
     openssl dgst -verify $tempD/$baseBlockName.pub -keyform PEM -sha256 -signature $tempD/$baseBlockName.sign  -binary $tempD/$baseBlockName.raw  > /dev/null
 }
 
-validateTransactionMessage() {
-        ## ADD EACH TRANSCATION ACCOUNT CHECK (historical )
-        txMessage=$1
-        randomFolder=$RANDOM
-        tempFolder="$tempRootFolder/$randomFolder"
-        mkdir $tempFolder
-        echo ${txMessage}| awk -v FS=':' '{print $1":"$2":"$3":"$4":"$5":"$6}' > $tempFolder/${randomFolder}_transaction.msg
-        echo ${txMessage}| awk -v FS=':' '{print $7}'| base64 -d > $tempFolder/${randomFolder}_transaction.pub
-        echo ${txMessage}| awk -v FS=':' '{print $8}'| base64 -d > $tempFolder/${randomFolder}_transaction.sig
-        openssl dgst -verify $tempFolder/${randomFolder}_transaction.pub -keyform PEM -sha256 -signature $tempFolder/${randomFolder}_transaction.sig -binary $tempFolder/${randomFolder}_transaction.msg > /dev/null
-}
+
 
 provideBlocks() {
         commandCode=$(mapFunction2Code ${FUNCNAME[0]})
@@ -101,6 +91,7 @@ AddBlockFromNetwork() {
                 [ $(echo ${BlockID}| awk -v FS='.' '{print $3}') == "solved" ] && checkBlockSignature $blocksTeamp/$BlockID.solved
                 if [ $? -eq 0 ]; then
                     cat $blocksTeamp/$BlockID |  grep '^TX' |while read line; do
+                        # below function coming from functTransactionFromNetwork.sh
                         validateTransactionMessage $line
                         if [ $? -ne 0 ]; then
                             echo "{\"command\":\"AddBlockFromNetwork\",\"messageType\":\"direct\",status\":"2",\"message\":\"Cheating in chain, transaction issue in $BlockID.solved\"}"
@@ -126,10 +117,9 @@ AddBlockFromNetwork() {
                 validateNetworkBlockHash "$blocksTeamp"
                 mv $blocksTeamp/*blk* $BLOCKPATH/
                 echo "{\"command\":\"AddBlockFromNetwork\",\"messageType\":\"direct\",\"status\":"0",\"destinationSocket\":\"$fromSocket\"}"
-                # BROADCAST to others about this ifo
                 echo "{\"command\":\"AddBlockFromNetwork\",\"messageType\":\"direct\",\"status\":"0",\"message\":\"got new block\",\"destinationSocket\":\"$fromSocket\"}"
-                echo "{\"command\":\"notification\",\"commandCode\":\"$commandCode\",\"messageType\":\"broadcast\",\"status\":"0",\"message\":\"got new block\"}"
-
+                # BROADCAST to others about this info (except Socket ID). Becase that socket sent it
+                echo "{\"command\":\"notification\",\"commandCode\":\"$commandCode\",\"messageType\":\"broadcast\",\"exceptSocket\":$fromSocket,\"status\":"0",\"message\":\"got new block\"}"
             else
                 echo "{\"command\":\"AddBlockFromNetwork\",\"messageType\":\"direct\",\"status\":"2",\"destinationSocket\":\"$fromSocket\",\"message\":\"Folder:$blocksTeamp, firstFileNetwID=$firstFileNetwID and lastFileCurrIDplus1=$lastFileCurrIDplus1 Chain ID $BlockID is not matching\"}"
             fi

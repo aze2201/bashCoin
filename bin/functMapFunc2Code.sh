@@ -32,9 +32,7 @@ mapFunction2Code () {
                 provideBlocks)
                                 code=301
                                 ;;
-                updateNetworkInfo)
-                                code=401
-                                ;;
+
                 *)
                                 code=000
                                 ;;

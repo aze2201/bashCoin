@@ -1,23 +1,21 @@
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172406", "difficulty": "1", "MINEDBLOCK": "151.blk.solved", "NEXTBLOCK": "152.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172406", "difficulty": "1", "MINEDBLOCK": "151.blk.solved", "NEXTBLOCK": "152.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172406", "difficulty": "1", "MINEDBLOCK": "151.blk.solved", "NEXTBLOCK": "152.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172425", "difficulty": "1", "MINEDBLOCK": "152.blk.solved", "NEXTBLOCK": "153.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172444", "difficulty": "1", "MINEDBLOCK": "153.blk.solved", "NEXTBLOCK": "154.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172444", "difficulty": "1", "MINEDBLOCK": "153.blk.solved", "NEXTBLOCK": "154.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172444", "difficulty": "1", "MINEDBLOCK": "153.blk.solved", "NEXTBLOCK": "154.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172444", "difficulty": "1", "MINEDBLOCK": "153.blk.solved", "NEXTBLOCK": "154.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "mine", "appType": "miner", "messageType": "broadcast", "socketID": 2}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172548", "difficulty": "1", "MINEDBLOCK": "154.blk.solved", "NEXTBLOCK": "155.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172548", "difficulty": "1", "MINEDBLOCK": "154.blk.solved", "NEXTBLOCK": "155.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "mine", "appType": "miner", "messageType": "broadcast", "socketID": 2}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172612", "difficulty": "1", "MINEDBLOCK": "155.blk.solved", "NEXTBLOCK": "156.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172612", "difficulty": "1", "MINEDBLOCK": "146.blk.solved", "NEXTBLOCK": "147.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122172612", "difficulty": "1", "MINEDBLOCK": "155.blk.solved", "NEXTBLOCK": "156.blk"}' > communicate_pipe
+
+./bashCoin.sh '{"command": "updateInfo", "peers": [["161.97.69.136", "127.0.0.1"]]}' > communicate_pipe
 ./bashCoin.sh '{"command": "nothing", "appType": "nothing", "destinationSocketBashCoin": "yes", "messageType": "direct", "socketID": 1}' > communicate_pipe
-./bashCoin.sh '{"command": "mine", "appType": "miner", "messageType": "broadcast", "socketID": 3}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122173239", "difficulty": "1", "MINEDBLOCK": "156.blk.solved", "NEXTBLOCK": "157.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122173239", "difficulty": "1", "MINEDBLOCK": "156.blk.solved", "NEXTBLOCK": "157.blk"}' > communicate_pipe
+./bashCoin.sh '{"command": "help", "description": "get more detail from https://aze2201.github.io/bashCoin", "messageType": "direct", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "help", "description": "get more detail from https://aze2201.github.io/bashCoin", "messageType": "direct", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "help", "description": "get more detail from https://aze2201.github.io/bashCoin", "messageType": "direct", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "help", "description": "get more detail from https://aze2201.github.io/bashCoin", "messageType": "direct", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "help", "description": "get more detail from https://aze2201.github.io/bashCoin", "messageType": "direct", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "nothing", "peers": [["161.97.69.136", "127.0.0.1"]]}' > communicate_pipe
 ./bashCoin.sh '{"command": "nothing", "appType": "nothing", "destinationSocketBashCoin": "yes", "messageType": "direct", "socketID": 1}' > communicate_pipe
-./bashCoin.sh '{"command": "mine", "appType": "miner", "messageType": "broadcast", "socketID": 3}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122173532", "difficulty": "1", "MINEDBLOCK": "148.blk.solved", "NEXTBLOCK": "149.blk"}' > communicate_pipe
-./bashCoin.sh '{"command": "notification", "appType": "miner", "messageType": "broadcast", "status": "0", "timeUTC": "20211122173533", "difficulty": "1", "MINEDBLOCK": "157.blk.solved", "NEXTBLOCK": "158.blk"}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "messageType": "broadcast", "socketID": 2}' > communicate_pipe
+./bashCoin.sh '{"command": "nothing", "peers": [["161.97.69.136", "127.0.0.1"]]}' > communicate_pipe
+./bashCoin.sh '{"command": "nothing", "appType": "nothing", "destinationSocketBashCoin": "yes", "messageType": "direct", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "messageType": "broadcast", "socketID": 2}' > communicate_pipe
+./bashCoin.sh '{"command": "nothing", "peers": [["161.97.69.136", "127.0.0.1"]]}' > communicate_pipe
+./bashCoin.sh '{"command": "nothing", "appType": "nothing", "destinationSocketBashCoin": "yes", "messageType": "direct", "socketID": 1}' > communicate_pipe
+./bashCoin.sh '{"command": "checkbalance", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "messageType": "direct", "socketID": 2}' > communicate_pipe
+./bashCoin.sh '{"command": "getTransactionMessageForSign", "messageType": "direct", "SENDER": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "RECEIVER": "b1bd54c941aef5e0096c46fd21d971b3a3cf5325226afb89c0a9d6845a491af6", "AMOUNT": 5, "FEE": 3, "DATEEE": "202111121313", "socketID": 3}' > communicate_pipe
+./bashCoin.sh '{"command": "nothing", "peers": [["161.97.69.136", "127.0.0.1"], ["161.97.69.136", "194.135.153.183"], ["161.97.69.136", "194.135.153.183"], ["161.97.69.136", "127.0.0.1"]]}' > communicate_pipe
+./bashCoin.sh '{"command": "nothing", "appType": "nothing", "destinationSocketBashCoin": "yes", "messageType": "direct", "socketID": 4}' > communicate_pipe
+./bashCoin.sh '{"command": "getTransactionMessageForSign", "messageType": "direct", "ACCTNUM": "50416596951b715b7e8e658de7d9f751fb8b97ce4edf0891f269f64c8fa8e034", "RECEIVER": "b1bd54c941aef5e0096c46fd21d971b3a3cf5325226afb89c0a9d6845a491af6", "AMOUNT": 5, "FEE": 3, "DATEEE": "202111121313", "socketID": 3}' > communicate_pipe

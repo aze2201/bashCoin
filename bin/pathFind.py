@@ -5,6 +5,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import sys
 
+#python2 Documents/qaralama/findPath.py '{"peers": [["161.97.69.136", "194.135.154.14"],["161.97.69.136", "194.135.154.12"],["194.135.154.12", "194.135.154.13"], ["194.135.154.13", "161.97.69.136"]]}'  '161.97.69.136' '161.97.69.136'
+
 
 from collections import defaultdict
 
